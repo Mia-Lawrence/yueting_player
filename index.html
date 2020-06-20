@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>悦听音乐</title>
+    <link rel="icon" href="img/logo.png">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="font/iconfont.css">
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon"/>
+    <style>
+        [v-cloak]{display: none;}
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <transition name="cover">
+            <div class="main-container" v-show="isCover">
+                <div class="main-cover"></div>
+                <transition name="showText">
+                    <p class="main-text" v-show="isMainText">悦听音乐，听我想听的，爱我所爱的</p>
+                </transition>
+                <transition name="cover">
+                    <div class="main-btn" v-show="isMainBtn" @click="changeIsCover">开启悦听音乐之旅</div>
+                </transition>
+            </div>
+        </transition>
+        <div class="background">
+            <img class="background-img" :src="backList[index]">
+            <div class="background-btn" @click="changeBack">切换背景</div>
+        </div>
+        <div class="music-container" v-show="!isCover">
+            <transition name="err">
+                <div class="err-page" v-show="isErr">
+                    <p class="err-page-text">出错啦，请稍后重试</p>
+                </div>
+            </transition>
+            <div class="serach">
+                <p class="title">悦听</p>
+                <div class="search-bar">
+                    <input type="text" placeholder="请输入要搜索的音乐" class="user-input" v-model="searchInput" @keyup.enter="searchInfo">
+                    <div class="search-btn iconfont icon-sousuo" @click="searchInfo"></div>
+                </div>
+            </div>
+            <div class="before-content" v-show="songArr.length === 0">
+                <p class="before-content-tips">暂时没有播放歌曲，赶快搜索喜欢的歌曲吧</p>
+            </div>
+            <div class="content" v-show="songArr.length !== 0">
+                <ul class="music-list">
+                    <li class="music-item" v-for="(item,index) in songArr" :class="{active:isActive === index}">
+                        <div class="music-content" @click="playSong(item.id,index)">
+                            <span class="music-play iconfont icon-bofang"></span>
+                            <p class="music-name one-line"
+                            :title="item.name+'-'+item.artists[0].name"
+                            >{{item.name}}-{{item.artists[0].name}}</p>
+                        </div>
+                        <p class="music-mv iconfont icon-MV" v-if="item.mvid!=0" @click="playMV(item.mvid)"></p>
+                    </li>
+                </ul>
+                <div class="before-playpage" v-show="musicImg.length === 0">
+                    <p class="before-playpage-text">暂无播放歌曲</p>
+                </div>
+                <div class="play-page" v-show="musicImg.length !== 0">
+                    <transition name="err">
+                        <div class="play-err" v-show="isLost">
+                            <p class="play-err-text">音源走丢啦┬＿┬</p>
+                        </div>
+                    </transition>
+                    <div class="play-cd" :class="{playing:isPlaying}">
+                        <img src="img/disc.png" class="cd-img autoRotate">
+                        <img src="img/cd-play.png"class="cd-play">
+                        <img  class="music-img" :src="musicImg" v-show="musicImg!=''">
+                    </div>
+                </div>
+                <div class="before-music-comment" v-show="comments.length === 0">
+                    <p class="before-music-comment-text">暂无热门评论</p>
+                </div>
+                <div class="music-comment" v-show="comments.length !== 0">
+                    <h3 class="comment-title">热门评论</h3>
+                    <div class="comment-item" v-for="comment in comments">
+                        <div class="user-info">
+                            <img :src="comment.user.avatarUrl" class="user-img">
+                            <p class="user-name">{{comment.user.nickname}}</p>
+                        </div>
+                        <p class="user-comment">{{comment.content}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="audio-con">
+                <audio ref='audio' @play="play" @pause="pause" :src="musicUrl" controls autoplay loop class="myaudio"></audio>
+            </div>
+        </div>
+        <div class="video-con" v-if="isShow" v-cloak>
+            <video ref='video' :src="mvUrl" controls="controls" class="video" autoplay></video>
+            <div class="mask" @click="closeMV"></div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>Vue.config.productionTip=false</script>
+    <script src="js/index.js"></script>
+</body>
+</html>
